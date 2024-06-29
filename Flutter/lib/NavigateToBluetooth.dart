@@ -40,7 +40,7 @@ discoverServices(BuildContext context) async {
 
   List<BluetoothService> services = await targetDevice.discoverServices();
   for (var service in services) {
-    if (service.uuid.toString() == "cfdfdee4-a53c-47f4-a4f1-9854017f3817") {
+    if (service.uuid.toString() == "4fafc201-1fb5-459e-8fcc-c5c9c331914b") {
       for (var characteristics in service.characteristics) {
         characteristicDictionary[characteristics.uuid.toString()] = characteristics;
       }
@@ -60,8 +60,8 @@ discoverServices(BuildContext context) async {
         fast_reload = true;
     });
   }
-  characteristicDictionary["69ce5b3b-3db5-4511-acd1-743d30bcfb37"]?.setNotifyValue(true);
-  var stream = characteristicDictionary["69ce5b3b-3db5-4511-acd1-743d30bcfb37"]?.value.listen((event) {
+  characteristicDictionary["beb5483e-36e1-4688-b7f5-ea07361b26a8"]?.setNotifyValue(true);
+  var stream = characteristicDictionary["beb5483e-36e1-4688-b7f5-ea07361b26a8"]?.value.listen((event) {
     if(event.isNotEmpty)
     {
       int x = event[0];

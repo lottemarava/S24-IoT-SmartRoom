@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
@@ -36,25 +37,62 @@ class myProvider extends ChangeNotifier {
 bool popup = false;
 bool escaped = false;
 void main() {
-  runApp(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (context) => myProvider())
-        ],
-        child:
-        MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Night Light',
-        theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-            useMaterial3: true,
-            fontFamily: 'Alef'
-        ),
-        home: StartPage(),
-        //home: MyHomePage(title: 'Night light'),
-      ),
-  ));
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(App());      
 }
+
+class App extends StatelessWidget {
+  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _initialization,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: Text(
+                  snapshot.error.toString(),
+                  textDirection: TextDirection.ltr,
+                ),
+              ),
+            ),
+          );
+        }
+
+        if (snapshot.connectionState == ConnectionState.done) {
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (context) => myProvider())
+            ],
+            child: MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: 'Night Light',
+              theme: ThemeData(
+                colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+                useMaterial3: true,
+                fontFamily: 'Alef',
+              ),
+              home: StartPage(),
+              //home: MyHomePage(title: 'Night light'),
+            ),
+          );
+        }
+
+        return MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class StartPage extends StatefulWidget {
   const StartPage({super.key}) ;
     @override
