@@ -38,67 +38,69 @@ void detectMotion() {
     int sensorValue =radar.read();  // Example: Replace with actual sensor read function
     if (radar.isConnected() && radar.presenceDetected()&& radar.stationaryTargetDetected()) {
                     //ESP_LOGI(TAG, "Last Seen: %d", lastSeen[i % size]);//ESP_LOGI(TAG, "Stationary target: %d cm",//      radar.stationaryTargetDistance());debug
-        if (radar.stationaryTargetDistance() - 60 >= lastSeen[i % size]) {
-
-           if (configured || manually_configured) {
-              my_now = millis() / 1000;
-              // Adjust for rollover if necessary
-              if (my_now < last_motion) {
-                  my_now += 4294967;
-              }
+      Serial.println("sensing....!!!");
+      if (radar.stationaryTargetDistance() - 60 >= lastSeen[i % size]) {
+        Serial.println("sensing....");
+        if (configured || manually_configured) {
+          my_now = millis() / 1000;
+          // Adjust for rollover if necessary
+          if (my_now < last_motion) {
+            my_now += 4294967;
+          }
               
-              // Check delay conditions
-              if (my_now - last_motion >= delay_time) {
-                  motion_detected = false;
-                  offset = 5 - (my_now - last_motion - delay_time);
-              }
+          // Check delay conditions
+          if (my_now - last_motion >= delay_time) {
+              motion_detected = false;
+              offset = 5 - (my_now - last_motion - delay_time);
+          }
               
-              // Act based on timing conditions
-              if ((my_now - last_motion >= delay_time + 5 && my_now - first_motion >= delay_time + 10) || last_motion == 4294967) {
-                  actAccordingTime();
-                  offset = 0;
-              } else {
-                  actAccordingTime(true);
-              }
-                    } else {
-                        lastSeen[i % size] = radar.stationaryTargetDistance();
-                        i++;
-                        sum = 0;
-                        for (int x = 0; x < 10; x++) {
-                            sum += lastSeen[x];
-                        }
-                        if (sum <= 80) {
-                          j++;
-                            ESP_LOGI(TAG, "UP!!");
-                            Serial.print("UP! debug purpose");
-                            if (!motion_detected) {
-                                first_motion = millis() / 1000 - offset;
-                            }
-                            motion_detected = true;
-                            my_now = millis() / 1000;
-          
-                              // Adjust for rollover if necessary
-                              if (my_now < first_motion) {
-                                  my_now += 4294967;
-                              }
-                              
-                              last_motion = millis() / 1000;
-                              
-                              // Act according to configured times
-                              if (configured || manually_configured) {
-                                  actAccordingTime(true);
-                              } else if (!connecting) {
-                                  actAccordingTime();
-                                  connectWithPref();
-                              }
-                        }
-            }
+          // Act based on timing conditions
+          if ((my_now - last_motion >= delay_time + 5 && my_now - first_motion >= delay_time + 10) || last_motion == 4294967) {
+              actAccordingTime();
+              offset = 0;
+          } else {
+              actAccordingTime(true);
+          }
         }
-       } else if (!connecting) {
+        else if (!connecting) {
+          actAccordingTime();
+          connectWithPref();
+        }
+      } 
+      else {
+        lastSeen[i % size] = radar.stationaryTargetDistance();
+        i++;
+        sum = 0;
+        for (int x = 0; x < 20; x++) {
+            sum += lastSeen[x];
+        }
+        if (sum <= 80) {
+          Serial.println("UP! debug purpose");
+          if (!motion_detected) {
+             first_motion = millis() / 1000 - offset;
+          }
+          motion_detected = true;
+          my_now = millis() / 1000;
+
+          // Adjust for rollover if necessary
+          if (my_now < first_motion) {
+              my_now += 4294967;
+          }
+          
+          last_motion = millis() / 1000;
+          
+          // Act according to configured times
+          if (configured || manually_configured) {
+              actAccordingTime(true);
+          } else if (!connecting) {
               actAccordingTime();
               connectWithPref();
           }
+        }
+      }
     }
+      
+  }
 
 
 
