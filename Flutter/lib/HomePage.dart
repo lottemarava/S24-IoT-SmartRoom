@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:nightlight/activityPage.dart';
 import 'package:nightlight/main.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -99,6 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
     WakeColorPage(WAKE_COLOR_UUID),
     SleepColorPage(SLEEP_COLOR_UUID),
     WIFISettingsPage(WIFI_UUID),
+    ActivitiesPage(),
   ];
 
   Future<void> _onItemTapped(int index) async {
@@ -275,6 +277,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         : Icons.wifi_off,
                     title: 'WiFi',
                   ),
+                  TabItem(icon: Icons.cloud_circle, title: 'Activity'),
                 ],
                 onTap: _onItemTapped,
               );

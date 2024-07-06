@@ -36,7 +36,9 @@ class myProvider extends ChangeNotifier {
 
 bool popup = false;
 bool escaped = false;
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   WidgetsFlutterBinding.ensureInitialized();
   runApp(App());      
 }
@@ -227,4 +229,3 @@ class _MyAppState extends State<StartPage> with WidgetsBindingObserver {
     return BluetoothButtonPage();
   }
 }
-
