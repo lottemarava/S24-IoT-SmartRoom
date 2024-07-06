@@ -247,6 +247,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return PopScope(
         child: Scaffold(
+          resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
           body: Column(
             children: [

@@ -42,7 +42,13 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Night Active Time'),
+        title: Text('Night Active Time',
+        style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          )),
+        centerTitle: true,
+        backgroundColor: Color.fromARGB(255, 35, 109, 247),
       ),
       body: _activities.isEmpty
           ? Center(child: CircularProgressIndicator())
