@@ -41,14 +41,18 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white70,
       appBar: AppBar(
-        title: Text('Night Active Time',
-        style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          )),
         centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 35, 109, 247),
+        automaticallyImplyLeading: false,
+        //backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Colors.teal.shade800,
+        title: Text('Night Light',
+            style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.bold, color: Colors.white
+
+            )),
       ),
       body: _activities.isEmpty
           ? Center(child: CircularProgressIndicator())

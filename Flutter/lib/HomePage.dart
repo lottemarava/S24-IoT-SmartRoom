@@ -278,7 +278,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         : Icons.wifi_off,
                     title: 'WiFi',
                   ),
-                  TabItem(icon: Icons.cloud_circle, title: 'Activity'),
+                  TabItem(icon: Icons.cloud_download_outlined, title: 'Activity'),
                 ],
                 onTap: _onItemTapped,
               );
