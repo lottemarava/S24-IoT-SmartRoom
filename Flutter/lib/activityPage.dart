@@ -104,9 +104,9 @@ Widget build(BuildContext context) {
           List<DocumentSnapshot> documents = snapshot.data!.docs;
           List<Widget> dataWidgets = documents.map((doc) {
             Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+            String time = data['time'] ?? 'No Time';
             return ListTile(
-              title: Text('Data Received: ${data.toString()}'),
-              subtitle: Text(data['description'] ?? 'No Description'),
+              title: Text('Time: $time'),
             );
           }).toList();
 
