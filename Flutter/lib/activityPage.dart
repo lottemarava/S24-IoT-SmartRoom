@@ -1,70 +1,119 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:nightlight/main.dart';
 
 class ActivitiesPage extends StatefulWidget {
+  const ActivitiesPage({super.key});
+
   @override
-  _ActivitiesPageState createState() => _ActivitiesPageState();
+  State<ActivitiesPage> createState() => _ActivitiesPageState();
 }
 
 class _ActivitiesPageState extends State<ActivitiesPage> {
-  List<Map<String, dynamic>> _activities = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchInitialValues();
-  }
 
-  Future<void> _fetchInitialValues() async {
-    try {
-      DatabaseReference ref = FirebaseDatabase.instance.ref();
-      DatabaseEvent event = await ref.child('Activity').once();
+Future<QuerySnapshot> _getActivity() {
+  return firestore
+    .collection('Activity')
+    .get();
+}
 
-      Map<String, dynamic>? activity =
-          (event.snapshot.value as Map<dynamic, dynamic>?)?.cast<String, dynamic>();
-      if (activity != null) {
-        setState(() {
-          _activities = activity.entries
-              .map((entry) => {
-                    'id': entry.key,
-                    ...entry.value as Map<String, dynamic>
-                  })
-              .toList();
-        });
+@override
+Widget build(BuildContext context) {
+  return FutureBuilder<QuerySnapshot>(
+    future: _getActivity(),
+    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+      if (snapshot.hasError) {
+        return Scaffold(
+          backgroundColor: Colors.white70,
+          appBar: basicAppBar(),
+          body: Center(child: Text('Error: ${snapshot.error}')),
+        );
       }
-    } catch (error) {
-      print('Error fetching initial values: $error');
-      // Handle the error as needed
-    }
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white70,
-      appBar: AppBar(
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        //backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        backgroundColor: Colors.teal.shade800,
-        title: Text('Night Light',
+      if (snapshot.connectionState == ConnectionState.done) {
+        if (snapshot.hasData && snapshot.data != null) {
+          List<DocumentSnapshot> documents = snapshot.data!.docs;
+          List<Widget> dataWidgets = documents.map((doc) {
+            Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+            String time = data['time'] ?? 'No Time';
+            return ListTile(
+              title: Container(
+                decoration: BoxDecoration(
+                  color: Colors.teal.shade100,
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                padding: EdgeInsets.all(8.0),
+                child: Text('Time: $time', 
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                          ),
+            ));
+          }).toList();
+
+          return Scaffold(
+            backgroundColor: Colors.white70,
+            appBar: basicAppBar(),
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.teal.shade600,
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Text('Night Active Times Detected',
+                              style: TextStyle(
+                              fontSize: 21,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              ),),
+                    padding: EdgeInsets.all(8.0),
+                  ),
+                  const SizedBox(height: 16), // Add some space between the title and the list
+                  Expanded(
+                    child: dataWidgets.isEmpty
+                        ? Center(child: Text('No Night Active Times Detected.'))
+                        : ListView(children: dataWidgets),
+                  ),
+                ],
+              ),
+            ),
+          );
+        } else {
+          return Scaffold(
+            backgroundColor: Colors.white70,
+            appBar: basicAppBar(),
+            body: Center(child: Text('No Night Active Times Detected.')),
+          );
+        }
+      }
+
+      return Scaffold(
+        backgroundColor: Colors.white70,
+        appBar: basicAppBar(),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    },
+  );
+}
+
+}
+
+AppBar basicAppBar()
+{
+  return AppBar(centerTitle: true,
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.teal.shade800,
+          title: Text(
+            'Night Light',
             style: TextStyle(
               fontSize: 30,
-              fontWeight: FontWeight.bold, color: Colors.white
-
-            )),
-      ),
-      body: _activities.isEmpty
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: _activities.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_activities[index]['title'] ?? 'No Title'),
-                  subtitle: Text(_activities[index]['description'] ?? 'No Description'),
-                );
-              },
-            ),
-    );
-  }
+              fontWeight: FontWeight.bold,
+              color: Colors.white)));
 }

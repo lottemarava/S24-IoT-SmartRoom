@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
@@ -34,6 +35,7 @@ class myProvider extends ChangeNotifier {
 
 }
 
+FirebaseFirestore firestore = FirebaseFirestore.instance;
 bool popup = false;
 bool escaped = false;
 void main() async {
