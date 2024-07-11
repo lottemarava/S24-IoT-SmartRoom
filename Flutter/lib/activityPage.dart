@@ -105,7 +105,7 @@ Widget build(BuildContext context) {
           List<Widget> dataWidgets = documents.map((doc) {
             Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
             return ListTile(
-              title: Text("Data Recieved" ?? data.toString()),
+              title: Text('Data Received: ${data.toString()}'),
               subtitle: Text(data['description'] ?? 'No Description'),
             );
           }).toList();
