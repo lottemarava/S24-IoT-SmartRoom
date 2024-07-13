@@ -6,6 +6,9 @@
 
 ## Project Overview
 
+This project incorporates software from the following GitHub project:
+
+IOT-NightLight https://github.com/MhamedAhmad/IOT-NightLight/tree/main
 ---
 
 ## Folder Structure
