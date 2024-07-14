@@ -243,58 +243,57 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
-  @override
-  Widget build(BuildContext context) {
-    return PopScope(
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          backgroundColor: Colors.white,
-          body: Column(
-            children: [
-              Expanded(
-                child: _pages[_selectedIndex],
-              ),
-            ],
+@override
+Widget build(BuildContext context) {
+  return PopScope(
+    child: Scaffold(
+      resizeToAvoidBottomInset: true,
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          Expanded(
+            child: _pages[_selectedIndex],
           ),
-          bottomNavigationBar: Builder(
-            builder: (context) {
-              return ConvexAppBar(
-                style: TabStyle.reactCircle,
-                color: Colors.white,
-                backgroundColor: Colors.teal.shade800,
-                items: [
-                  TabItem(
-                    icon: (context.watch<myProvider>().timeConfigured ||
-                        context.watch<myProvider>().timeManConfigured)
-                        ? Icons.timer_outlined
-                        : Icons.timer_off_outlined,
-                    title: 'Time',
-                  ),
-                  TabItem(icon: Icons.sunny, title: 'Wake Color'),
-                  TabItem(icon: Icons.nightlight_outlined, title: 'Sleep Color'),
-                  TabItem(
-                    icon: context.watch<myProvider>().wifiConnected
-                        ? Icons.wifi
-                        : Icons.wifi_off,
-                    title: 'WiFi',
-                  ),
-                  TabItem(icon: Icons.cloud_download_outlined, title: 'Activity'),
-                ],
-                onTap: _onItemTapped,
-              );
-            },
-          ),
+        ],
+      ),
+      bottomNavigationBar: 
+        Builder(
+          builder: (context) {
+            return ConvexAppBar(
+              style: TabStyle.reactCircle,
+              color: Colors.white,
+              backgroundColor: Colors.teal.shade800,
+              items: [
+                TabItem(
+                  icon: (context.watch<myProvider>().timeConfigured ||
+                      context.watch<myProvider>().timeManConfigured)
+                      ? Icon(Icons.timer_outlined) // Adjust icon size
+                      : Icon(Icons.timer_off_outlined),
+                  title: 'Time',
+                ),
+                TabItem(icon: Icons.sunny, title: 'Wake'),
+                TabItem(icon: Icons.nightlight_outlined, title: 'Sleep'), // Commented out
+                TabItem(
+                  icon: context.watch<myProvider>().wifiConnected
+                      ? Icon(Icons.wifi)
+                      : Icon(Icons.wifi_off),
+                  title: 'WiFi',
+                ),
+                TabItem(icon: Icons.cloud_download_outlined, title: 'Activity'),
+              ],
+              onTap: _onItemTapped,
+            );
+          },
+      ),
+    ),
+    canPop: false,
+    onPopInvoked: (bool didPop) {
+      if (didPop) return;
+      _onBackButtonPressed(context);
+    },
+  );
+}
 
-        ),
-
-        canPop: false,
-        onPopInvoked: (bool didPop) {
-          if (didPop)
-            return;
-          _onBackButtonPressed(context);
-        }
-    );
-  }
 
 
 
