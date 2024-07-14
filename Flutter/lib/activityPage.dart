@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:nightlight/main.dart';
 
 class ActivitiesPage extends StatefulWidget {
@@ -10,6 +11,53 @@ class ActivitiesPage extends StatefulWidget {
 }
 
 class _ActivitiesPageState extends State<ActivitiesPage> {
+  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  static const String channelId = 'activity_channel';
+  static const String channelName = 'Activity Notifications';
+  static const String channelDescription = 'Notifications for new activities detected';
+
+  @override
+  void initState() {
+    super.initState();
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('mipmap/ic_launcher');
+    final InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+    _createNotificationChannel();
+  }
+
+  void _createNotificationChannel() async {
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      channelId,
+      channelName,
+      description: channelDescription,
+      importance: Importance.max,
+    );
+
+    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+  }
+
+  Future<void> _showNotification(String title, String body) async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(channelId, channelName,
+            importance: Importance.max, priority: Priority.high, showWhen: false);
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      title,
+      body,
+      platformChannelSpecifics,
+      payload: 'item x',
+    );
+  }
+
   Stream<QuerySnapshot> _getActivityStream() {
     return firestore.collection('Activity').snapshots();
   }
@@ -30,6 +78,11 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
         if (snapshot.connectionState == ConnectionState.active) {
           if (snapshot.hasData && snapshot.data != null) {
             List<DocumentSnapshot> documents = snapshot.data!.docs;
+            
+            if (snapshot.hasData && documents.isNotEmpty) {
+              _showNotification('New Activity Detected', 'A new activity has been recorded.');
+            }
+
             List<Widget> dataWidgets = documents.map((doc) {
               Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
               String time = data['time'] ?? 'No Time';
