@@ -1,38 +1,21 @@
-
-/**
- * Created by K. Suwatchai (Mobizt)
- *
- * Email: k_suwatchai@hotmail.com
- *
- * Github: https://github.com/mobizt/Firebase-ESP-Client
- *
- * Copyright (c) 2023 mobizt
- *
- */
-
-// This example shows how to create a document in a document collection. This operation required Email/password, custom or OAUth2.0 authentication.
-
-#include <Arduino.h>
-#if defined(ESP32) || defined(ARDUINO_RASPBERRY_PI_PICO_W)
 #include <WiFi.h>
-#elif defined(ESP8266)
-#include <ESP8266WiFi.h>
-#elif __has_include(<WiFiNINA.h>)
-#include <WiFiNINA.h>
-#elif __has_include(<WiFi101.h>)
-#include <WiFi101.h>
-#elif __has_include(<WiFiS3.h>)
-#include <WiFiS3.h>
-#endif
-
+#include "time.h"
+#include "esp_sntp.h"
 #include <Firebase_ESP_Client.h>
 
 // Provide the token generation process info.
 #include <addons/TokenHelper.h>
 
 /* 1. Define the WiFi credentials */
-#define WIFI_SSID ""
-#define WIFI_PASSWORD ""
+const char *ssid = "";
+const char *password = "";
+
+const char *ntpServer1 = "pool.ntp.org";
+const char *ntpServer2 = "time.nist.gov";
+const long gmtOffset_sec = 3600;
+const int daylightOffset_sec = 3600;
+
+const char *time_zone = "CET-1CEST,M3.5.0,M10.5.0/3";  // TimeZone rule for Europe/Rome including daylight adjustment rules (optional)
 
 /* 2. Define the API Key */
 #define API_KEY ""
@@ -46,16 +29,11 @@
 
 // Define Firebase Data object
 FirebaseData fbdo;
-
 FirebaseAuth auth;
 FirebaseConfig config;
 
 unsigned long dataMillis = 0;
 int count = 0;
-
-#if defined(ARDUINO_RASPBERRY_PI_PICO_W)
-WiFiMulti multi;
-#endif
 
 // The Firestore payload upload callback function
 void fcsUploadCallback(CFS_UploadStatusInfo info)
@@ -82,30 +60,61 @@ void fcsUploadCallback(CFS_UploadStatusInfo info)
     }
 }
 
-void setup()
-{
+void printLocalTime() {
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo)) {
+    Serial.println("No time available (yet)");
+    return;
+  }
+  Serial.println(&timeinfo, "%A, %B %d %Y %H:%M:%S");
+}
 
-    Serial.begin(115200);
+// Callback function (gets called when time adjusts via NTP)
+void timeavailable(struct timeval *t) {
+  Serial.println("Got time adjustment from NTP!");
+  printLocalTime();
+}
 
-#if defined(ARDUINO_RASPBERRY_PI_PICO_W)
-    multi.addAP(WIFI_SSID, WIFI_PASSWORD);
-    multi.run();
-#else
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-#endif
+void setup() {
+  Serial.begin(115200);
 
-    Serial.print("Connecting to Wi-Fi");
-    unsigned long ms = millis();
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        Serial.print(".");
-        delay(300);
-#if defined(ARDUINO_RASPBERRY_PI_PICO_W)
-        if (millis() - ms > 10000)
-            break;
-#endif
-    }
-    Serial.println();
+  // First step is to configure WiFi STA and connect in order to get the current time and date.
+  Serial.printf("Connecting to %s ", ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println(" CONNECTED TO WIFI");
+
+  // set notification call-back function
+  sntp_set_time_sync_notification_cb(timeavailable);
+
+  /**
+   * NTP server address could be acquired via DHCP,
+   *
+   * NOTE: This call should be made BEFORE esp32 acquires IP address via DHCP,
+   * otherwise SNTP option 42 would be rejected by default.
+   * NOTE: configTime() function call if made AFTER DHCP-client run
+   * will OVERRIDE acquired NTP server address
+   */
+  esp_sntp_servermode_dhcp(1);  // (optional)
+
+  /**
+   * This will set configured ntp servers and constant TimeZone/daylightOffset
+   * should be OK if your time zone does not need to adjust daylightOffset twice a year,
+   * in such a case time adjustment won't be handled automagically.
+   */
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2);
+
+  /**
+   * A more convenient approach to handle TimeZones with daylightOffset
+   * would be to specify a environment variable with TimeZone definition including daylight adjustmnet rules.
+   * A list of rules for your zone could be obtained from https://github.com/esp8266/Arduino/blob/master/cores/esp8266/TZ.h
+   */
+  //configTzTime(time_zone, ntpServer1, ntpServer2);
+
+  Serial.println();
     Serial.print("Connected with IP: ");
     Serial.println(WiFi.localIP());
     Serial.println();
@@ -130,7 +139,7 @@ void setup()
     config.token_status_callback = tokenStatusCallback; // see addons/TokenHelper.h
 
     // Comment or pass false value when WiFi reconnection will control by your code or third party library e.g. WiFiManager
-    Firebase.reconnectNetwork(true);
+    //Firebase.reconnectNetwork(tru e);
 
     // Since v4.4.x, BearSSL engine was used, the SSL buffer need to be set.
     // Large data transmission may require larger RX buffer, otherwise connection issue or data read time out can be occurred.
@@ -141,6 +150,8 @@ void setup()
 
     Firebase.begin(&config, &auth);
 
+
+
     // For sending payload callback
     // config.cfs.upload_callback = fcsUploadCallback;
 
@@ -149,75 +160,47 @@ void setup()
     // fbdo.keepAlive(5, 5, 1);
 }
 
-void loop()
-{
+void loop() {
+  delay(5000);
+  printLocalTime();  // it will take some time to sync time :)
+  dataMillis = millis();
 
-    // Firebase.ready() should be called repeatedly to handle authentication tasks.
+  // For the usage of FirebaseJson, see examples/FirebaseJson/BasicUsage/Create_Edit_Parse/Create_Edit_Parse.ino
+  FirebaseJson content;
 
-    if (Firebase.ready() && (millis() - dataMillis > 60000 || dataMillis == 0))
-    {
-        dataMillis = millis();
+  // Note: If new document created under non-existent ancestor documents, that document will not appear in queries and snapshot
+  // https://cloud.google.com/firestore/docs/using-console#non-existent_ancestor_documents.
 
-        // For the usage of FirebaseJson, see examples/FirebaseJson/BasicUsage/Create_Edit_Parse/Create_Edit_Parse.ino
-        FirebaseJson content;
+  // We will create the document in the parent path "a0/b?
+  // a0 is the collection id, b? is the document id in collection a0.
 
-        // Note: If new document created under non-existent ancestor documents, that document will not appear in queries and snapshot
-        // https://cloud.google.com/firestore/docs/using-console#non-existent_ancestor_documents.
+  String documentPath = "Activity/b" + String(count);
 
-        // We will create the document in the parent path "a0/b?
-        // a0 is the collection id, b? is the document id in collection a0.
+  // If the document path contains space e.g. "a b c/d e f"
+  // It should encode the space as %20 then the path will be "a%20b%20c/d%20e%20f"
+  struct tm timeinfo;
 
-        String documentPath = "a0/b" + String(count);
+  if (getLocalTime(&timeinfo)) {
+    char timeStr[20];
+    char dateStr[20];
+    snprintf(timeStr, sizeof(timeStr), "%02d:%02d:%02d", timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+    snprintf(dateStr, sizeof(dateStr), "%04d-%02d-%02d", timeinfo.tm_year + 1900, timeinfo.tm_mon + 1, timeinfo.tm_mday);
+    Serial.printf("Current date and time: %s\n", timeStr);
+    content.set("fields/time/stringValue", timeStr);
+    content.set("fields/date/stringValue", dateStr);
 
-        // If the document path contains space e.g. "a b c/d e f"
-        // It should encode the space as %20 then the path will be "a%20b%20c/d%20e%20f"
-
-        // double
-        content.set("fields/myDouble/doubleValue", random(1, 500) / 100.0);
-
-        // boolean
-        content.set("fields/myBool/booleanValue", true);
-
-        // integer
-        content.set("fields/myInteger/integerValue", String(random(500, 1000)));
-
-        // null
-        content.set("fields/myNull/nullValue"); // no value set
-
-        String doc_path = "projects/";
-        doc_path += FIREBASE_PROJECT_ID;
-        doc_path += "/databases/(default)/documents/coll_id/doc_id"; // coll_id and doc_id are your collection id and document id
-
-        // reference
-        content.set("fields/myRef/referenceValue", doc_path.c_str());
-
-        // timestamp
-        content.set("fields/myTimestamp/timestampValue", "2014-10-02T15:01:23Z"); // RFC3339 UTC "Zulu" format
-
-        // bytes
-        content.set("fields/myBytes/bytesValue", "aGVsbG8="); // base64 encoded
-
-        // array
-        content.set("fields/myArray/arrayValue/values/[0]/stringValue", "test");
-        content.set("fields/myArray/arrayValue/values/[1]/integerValue", "20");
-        content.set("fields/myArray/arrayValue/values/[2]/booleanValue", true);
-
-        // map
-        content.set("fields/myMap/mapValue/fields/name/stringValue", "wrench");
-        content.set("fields/myMap/mapValue/fields/mass/stringValue", "1.3kg");
-        content.set("fields/myMap/mapValue/fields/count/integerValue", "3");
-
-        // lat long
-        content.set("fields/myLatLng/geoPointValue/latitude", 1.486284);
-        content.set("fields/myLatLng/geoPointValue/longitude", 23.678198);
-
-        count++;
-
+    if (Firebase.Firestore.createDocument(&fbdo, FIREBASE_PROJECT_ID, "" /* databaseId can be (default) or empty */, documentPath.c_str(), content.raw())){
         Serial.print("Create a document... ");
-
-        if (Firebase.Firestore.createDocument(&fbdo, FIREBASE_PROJECT_ID, "" /* databaseId can be (default) or empty */, documentPath.c_str(), content.raw()))
-            Serial.printf("ok\n%s\n\n", fbdo.payload().c_str());
-        else
-            Serial.println(fbdo.errorReason());
+        Serial.printf("ok\n%s\n\n", fbdo.payload().c_str());
+        count++;
     }
+    else
+        Serial.println(fbdo.errorReason());
+  } 
+  else {
+    Serial.println("Failed to obtain time");
+  }
+
+
 }
+
