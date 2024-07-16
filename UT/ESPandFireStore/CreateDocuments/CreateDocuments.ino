@@ -174,7 +174,7 @@ void loop() {
   // We will create the document in the parent path "a0/b?
   // a0 is the collection id, b? is the document id in collection a0.
 
-  String documentPath = "Activity/b" + String(count);
+  String documentPath = "Activity";
 
   // If the document path contains space e.g. "a b c/d e f"
   // It should encode the space as %20 then the path will be "a%20b%20c/d%20e%20f"
@@ -192,7 +192,6 @@ void loop() {
     if (Firebase.Firestore.createDocument(&fbdo, FIREBASE_PROJECT_ID, "" /* databaseId can be (default) or empty */, documentPath.c_str(), content.raw())){
         Serial.print("Create a document... ");
         Serial.printf("ok\n%s\n\n", fbdo.payload().c_str());
-        count++;
     }
     else
         Serial.println(fbdo.errorReason());
