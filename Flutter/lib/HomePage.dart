@@ -49,12 +49,11 @@ writeDataWithCharacteristic(String c, String data, BuildContext context) async {
       );},
     );
 
-    // set up the AlertDialog
     AlertDialog alert = AlertDialog(
       title: Row(
           children: [
-            Icon(Icons.cancel,color: Colors.red), // Add an icon if you want
-            SizedBox(width: 8), // Add some space between the icon and text
+            Icon(Icons.cancel,color: Colors.red), 
+            SizedBox(width: 8), 
             Text("Bluetooth Disconnected",style: TextStyle(fontSize: 20,)),
           ]
       ),
@@ -64,7 +63,6 @@ writeDataWithCharacteristic(String c, String data, BuildContext context) async {
       ],
     );
 
-    // show the dialog
     popup = true;
     showDialog(
       context: context,
@@ -147,11 +145,11 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget saveButton = TextButton(
       child: Row(
         children: [
-          Icon(Icons.save,color: Colors.green,), // Add an icon if you want
-          SizedBox(width: 8), // Add some space between the icon and text
+          Icon(Icons.save,color: Colors.green,), 
+          SizedBox(width: 8), 
           Text(
             "Save and Continue",
-            textAlign: TextAlign.left, // Align the text to the left
+            textAlign: TextAlign.left, 
           ),
         ],
       ),
@@ -172,11 +170,11 @@ class _MyHomePageState extends State<MyHomePage> {
     Widget discardButton = TextButton(
       child: Row(
         children: [
-          Icon(Icons.delete,color: Colors.red.shade800,), // Add an icon if you want
-          SizedBox(width: 8), // Add some space between the icon and text
+          Icon(Icons.delete,color: Colors.red.shade800,), 
+          SizedBox(width: 8), 
           Text(
             "Discard Changes and Continue",
-            textAlign: TextAlign.left, // Align the text to the left
+            textAlign: TextAlign.left, 
           ),
         ],
       ),
@@ -195,7 +193,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     AlertDialog alert = AlertDialog(
-      //title: Text("Alert",),
       content: Text("Do you want to save your changes before leaving?",style: TextStyle(fontSize: 16),),
       actions: [
         saveButton,
@@ -267,19 +264,19 @@ Widget build(BuildContext context) {
                 TabItem(
                   icon: (context.watch<myProvider>().timeConfigured ||
                       context.watch<myProvider>().timeManConfigured)
-                      ? Icon(Icons.timer_outlined) // Adjust icon size
+                      ? Icon(Icons.timer_outlined) 
                       : Icon(Icons.timer_off_outlined),
                   title: 'Time',
                 ),
                 TabItem(icon: Icons.sunny, title: 'Wake'),
-                TabItem(icon: Icons.nightlight_outlined, title: 'Sleep'), // Commented out
+                TabItem(icon: Icons.nightlight_outlined, title: 'Sleep'), 
                 TabItem(
                   icon: context.watch<myProvider>().wifiConnected
                       ? Icon(Icons.wifi)
                       : Icon(Icons.wifi_off),
                   title: 'WiFi',
                 ),
-                TabItem(icon: Icons.cloud_download_outlined, title: 'Activity'),
+                TabItem(icon: Icons.notification_important_outlined, title: 'Activity'),
               ],
               onTap: _onItemTapped,
             );

@@ -3,7 +3,7 @@ import 'package:flutter_blue/flutter_blue.dart';
 import 'package:nightlight/main.dart';
 import 'HomePage.dart';
 import 'NavigateToBluetooth.dart';
-import 'package:provider/provider.dart'; // Import Provider package
+import 'package:provider/provider.dart';
 
 
 class WIFISettingsPage extends StatefulWidget {
@@ -114,7 +114,7 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                   style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),
                 ),
                 SizedBox(
-                  width: 250.0, // Set the desired width
+                  width: 250.0, 
                   child: TextField(
                     onChanged: (value) {
                       setState(() {
@@ -142,19 +142,18 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                   style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),
                 ),
                 SizedBox(
-                  width: 250.0, // Set the desired width
+                  width: 250.0, 
                   child: TextField(
                     onChanged: (value) {
                       setState(() {
                         widget.password = value;
                       });
-                      // Update the userSSID variable when the text changes
                     },
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0), // Adjust internal padding
+                      contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0), 
                     ),
-                    obscureText: true, // Hide entered characters
+                    obscureText: true, 
 
                   ),
                 ),
@@ -187,8 +186,8 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                       return AlertDialog(
                         title: Row(
                             children: [
-                              Icon(Icons.cancel,color: Colors.red,), // Add an icon if you want
-                              SizedBox(width: 8), // Add some space between the icon and text
+                              Icon(Icons.cancel,color: Colors.red,), 
+                              SizedBox(width: 8), 
                               Text("Connection Failed",style: TextStyle(fontSize: 20,)),
                             ]
                         ),
@@ -207,8 +206,8 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                                 return AlertDialog(
                                   title: Row(
                                       children: [
-                                        Icon(Icons.check_circle,color: Colors.green,), // Add an icon if you want
-                                        SizedBox(width: 8), // Add some space between the icon and text
+                                        Icon(Icons.check_circle,color: Colors.green,), 
+                                        SizedBox(width: 8), 
                                         Text("Time Configured",style: TextStyle(fontSize: 20,)),
                                       ]
                                   ),
@@ -235,19 +234,17 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
               else if (x == 1)
               {
                 Navigator.of(context).pop();
-                  // set up the button
                   Widget okButton = TextButton(
                     child: Text("OK"),
                     onPressed: (){
                       Navigator.of(context).pop();
                     },
                   );
-                  // set up the AlertDialog
                   AlertDialog alert = AlertDialog(
                     title:  Row(
                         children: [
-                          Icon(Icons.warning,color: Colors.yellow,), // Add an icon if you want
-                          SizedBox(width: 8), // Add some space between the icon and text
+                          Icon(Icons.warning,color: Colors.yellow,), 
+                          SizedBox(width: 8), 
                           Text("Connection Failed",style: TextStyle(fontSize: 20,)),
                         ]
                     ),
@@ -257,7 +254,6 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                     ],
                   );
 
-                  // show the dialog
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -276,8 +272,8 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                       return AlertDialog(
                         title:  Row(
                             children: [
-                              Icon(Icons.warning,color: Colors.yellow.shade200), // Add an icon if you want
-                              SizedBox(width: 5), // Add some space between the icon and text
+                              Icon(Icons.warning,color: Colors.yellow.shade200), 
+                              SizedBox(width: 5), 
                               Text("Connection Succeeded \nbut failed to configure\ntime",style: TextStyle(fontSize: 20,),),
                             ]
                         ),
@@ -296,8 +292,8 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                                   return AlertDialog(
                                     title:  Row(
                                         children: [
-                                          Icon(Icons.check_circle,color: Colors.green,), // Add an icon if you want
-                                          SizedBox(width: 8), // Add some space between the icon and text
+                                          Icon(Icons.check_circle,color: Colors.green,), 
+                                          SizedBox(width: 8),
                                           Text("Time Configured",style: TextStyle(fontSize: 20,)),
                                         ]
                                     ),
@@ -336,7 +332,6 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                   },
                 );
 
-                // set up the AlertDialog
                 AlertDialog alert = AlertDialog(
                   title:  Row(
                       children: [
@@ -351,7 +346,6 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                   ],
                 );
 
-                // show the dialog
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -362,7 +356,6 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
               else if (x == 5)
               {
                 Navigator.of(context).pop();
-                // set up the button
                 Widget okButton = TextButton(
                   child: Text("OK"),
                   onPressed: (){
@@ -370,12 +363,11 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                   },
                 );
 
-                // set up the AlertDialog
                 AlertDialog alert = AlertDialog(
                   title: Row(
                       children: [
-                        Icon(Icons.warning,color: Colors.yellow.shade200), // Add an icon if you want
-                        SizedBox(width: 8), // Add some space between the icon and text
+                        Icon(Icons.warning,color: Colors.yellow.shade200),
+                        SizedBox(width: 8),
                         Text("Connection Failed",style: TextStyle(fontSize: 20,)),
                       ]
                   ),
@@ -385,7 +377,6 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                   ],
                 );
 
-                // show the dialog
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -396,7 +387,6 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
               else if(x == -100)
               {
                 Navigator.of(context).pop();
-                  // set up the button
                   Widget okButton = TextButton(
                     child: Text("OK"),
                     onPressed: () { Navigator.of(context).pop();popup=false;
@@ -406,7 +396,6 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                     );},
                   );
 
-                  // set up the AlertDialog
                   AlertDialog alert = AlertDialog(
                     title: Row(
                         children: [
@@ -421,7 +410,6 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                     ],
                   );
 
-                  // show the dialog
                 popup = true;
                   showDialog(
                     context: context,
@@ -433,7 +421,6 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
               else
               {
                 Navigator.of(context).pop();
-                  // set up the button
                   Widget okButton = TextButton(
                     child: Text("OK"),
                     onPressed: () {
@@ -442,13 +429,12 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
 
                   );
 
-                  // set up the AlertDialog
                   AlertDialog alert = AlertDialog(
                     title:
                     Row(
                         children: [
-                          Icon(Icons.cancel,color: Colors.red,), // Add an icon if you want
-                          SizedBox(width: 8), // Add some space between the icon and text
+                          Icon(Icons.cancel,color: Colors.red,),
+                          SizedBox(width: 8),
                           Text("Unexpected Error",style: TextStyle(fontSize: 20,)),
                         ]
                     ),
@@ -458,7 +444,6 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                     ],
                   );
 
-                  // show the dialog
                 popup = true;
                   showDialog(
                     context: context,
