@@ -12,10 +12,9 @@ const char *password = "";
 
 const char *ntpServer1 = "pool.ntp.org";
 const char *ntpServer2 = "time.nist.gov";
-const long gmtOffset_sec = 3600;
-const int daylightOffset_sec = 3600;
+const long gmtOffset_sec = 10800;
+const int daylightOffset_sec = 0;
 
-const char *time_zone = "CET-1CEST,M3.5.0,M10.5.0/3";  // TimeZone rule for Europe/Rome including daylight adjustment rules (optional)
 
 /* 2. Define the API Key */
 #define API_KEY ""
@@ -161,11 +160,11 @@ void initDB() {
 }
 
 void updateDB() {
-  //this if was added to prevent overflowing the DB while testing
-  if (count==0)
-  {
-    delay(5000);
-    printLocalTime();  // it will take some time to sync time :)
+  // //this if was added to prevent overflowing the DB while testing
+  // if (count==0)
+  // {
+    // delay(5000);
+    // printLocalTime();  // it will take some time to sync time :)
     dataMillis = millis();
 
     // For the usage of FirebaseJson, see examples/FirebaseJson/BasicUsage/Create_Edit_Parse/Create_Edit_Parse.ino
@@ -190,7 +189,7 @@ void updateDB() {
       snprintf(dateStr, sizeof(dateStr), "%04d-%02d-%02d", timeinfo.tm_year + 1900, timeinfo.tm_mon + 1, timeinfo.tm_mday);
       content.set("fields/time/stringValue", timeStr);
       content.set("fields/date/stringValue", dateStr);
-      count=1;
+      // count=1;
 
       if (Firebase.Firestore.createDocument(&fbdo, FIREBASE_PROJECT_ID, "" /* databaseId can be (default) or empty */, documentPath.c_str(), content.raw())){
           Serial.print("Create a document... ");
@@ -204,7 +203,7 @@ void updateDB() {
     }
 
 
-  }
+  // }
 
 
 }

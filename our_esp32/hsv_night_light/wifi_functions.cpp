@@ -1,7 +1,12 @@
 #include "wifi_functions.h"
+
 const char* ntpServer = "time.google.com";
 const long  gmtOffset_sec = 7200;
 const int   daylightOffset_sec = 3600;
+
+
+
+
 
 //using saved credentials to connect to WiFi and NTP
 void connectWithPref()

@@ -1,0 +1,199 @@
+#include "motion_function.h"
+
+//------------------------------------------------------------------------------------------------------
+// Global Variables
+//------------------------------------------------------------------------------------------------------
+
+// Preference
+Preferences prefs;
+
+// Neopixel related variables
+Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+int low_hue = 0;
+int low_saturation = 0;
+int low_value = 0;
+int high_hue = 0;
+int high_saturation = 0;
+int high_value = 0;
+
+// Time related variables
+uint32_t first_motion = 0;
+uint32_t last_motion = 4294967;
+int delay_time = 0;
+uint32_t my_now = 0;
+int offset = 0;
+int wake_time = 0;
+int sleep_time = 0;
+int fade_in_time = 0;
+int fade_out_time = 0;
+int transition_time = 0;
+int phase = -1;
+
+// Motion variables
+int radarState = LOW;
+int val = 0;
+bool motion_detected = false;
+#define MONITOR_SERIAL Serial
+#define RADAR_SERIAL Serial1
+#define RADAR_RX_PIN 32
+#define RADAR_TX_PIN 33
+ld2410 radar;
+bool engineeringMode = false;
+String command;
+int lastSeen[20] = {60, 60, 70, 80, 70, 80, 80, 70, 70, 70, 60, 70, 70, 70, 80, 60, 60, 60, 60, 60}; 
+int i = 0;
+const int size = 20;
+int sum = 0;
+int j = 0;
+
+// Tracking variables
+bool configured = false;
+bool manually_configured = false;
+bool was_configured = false;
+bool connecting = false;
+bool color_page = false;
+bool BT_connecting = false;
+bool connected = false;
+bool was_connected = false;
+bool BT_connected = false;
+std::string page = "0";
+
+// BLE related variables
+BLECharacteristic* pCharacteristic_5 = NULL;
+BLECharacteristic* pCharacteristic_8 = NULL;
+
+// Firebase related variables
+#if defined(ESP32)
+#include <WiFi.h>
+#include <FirebaseESP32.h>
+#elif defined(ESP8266)
+#include <ESP8266WiFi.h>
+#include <FirebaseESP8266.h>
+#endif
+#include <Firebase_ESP_Client.h>
+#include <addons/TokenHelper.h>
+#include <addons/RTDBHelper.h>
+
+// Define WiFi credentials
+const char* WIFI_SSID = "445830";   // Replace with your WiFi SSID
+const char* WIFI_PASSWORD = "12344321";  // Replace with your WiFi password
+
+// Define Firebase API Key and Database URL
+#define API_KEY "AIzaSyDt7g0i9R7u7SJEt7S6q0Z-f6IC01h81KE"
+#define DATABASE_URL "https://smart-room-6eed5.firebaseio.com"
+
+#define FIREBASE_CLIENT_VERSION "1.0.0"
+
+// Firebase objects
+FirebaseData stream;
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+bool start_up = false;
+unsigned long sendDataPrevMillis = 0;
+String curr_time = "";
+volatile bool dataChanged = false;
+
+//------------------------------------------------------------------------------------------------------
+// Setup function
+//------------------------------------------------------------------------------------------------------
+
+void setup() {
+  MONITOR_SERIAL.begin(115200); // Feedback over Serial Monitor
+  delay(500); // Give a while for Serial Monitor to wake up
+
+  // Initialize radar and related setup
+  RADAR_SERIAL.begin(256000, SERIAL_8N1, RADAR_RX_PIN, RADAR_TX_PIN);
+  delay(500);
+  MONITOR_SERIAL.print(F("\nConnect LD2410 radar TX to GPIO:"));
+  MONITOR_SERIAL.println(RADAR_RX_PIN);
+  MONITOR_SERIAL.print(F("Connect LD2410 radar RX to GPIO:"));
+  MONITOR_SERIAL.println(RADAR_TX_PIN);
+  
+  // Initialize radar sensor
+  MONITOR_SERIAL.print(F("LD2410 radar sensor initializing: "));
+  if (radar.begin(RADAR_SERIAL)) {
+    MONITOR_SERIAL.println(F("OK"));
+    MONITOR_SERIAL.print(F("LD2410 firmware version: "));
+    MONITOR_SERIAL.print(radar.firmware_major_version);
+    MONITOR_SERIAL.print('.');
+    MONITOR_SERIAL.print(radar.firmware_minor_version);
+    MONITOR_SERIAL.print('.');
+    MONITOR_SERIAL.println(radar.firmware_bugfix_version, HEX);
+  } else {
+    MONITOR_SERIAL.println(F("not connected"));
+  }
+
+  // Connect with preferences
+  connectWithPref();
+
+  // Load pixel and time settings
+  loadPixelSettings();
+  loadTimeSettings();
+
+  // Start BLE
+  BLEStart();
+
+  // Connect to WiFi
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("Connecting to Wi-Fi");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(300);
+  }
+  Serial.println();
+  Serial.print("Connected with IP: ");
+  Serial.println(WiFi.localIP());
+  Serial.println();
+  
+  // Print Firebase client version
+  Serial.printf("Firebase Client v%s\n\n", FIREBASE_CLIENT_VERSION);
+
+  // Instantiate FirebaseAuth object
+  //auth.token = "your_token_here"; // Replace with your Firebase auth token if required
+
+  // Assign API key and database URL to Firebase config
+  config.api_key = API_KEY;
+  config.database_url = DATABASE_URL;
+
+  // Initialize Firebase
+  Firebase.begin(&config, &auth); // Pass both FirebaseConfig and FirebaseAuth objects
+
+  // Additional setup tasks can go here
+}
+
+
+//------------------------------------------------------------------------------------------------------
+// Loop function
+//------------------------------------------------------------------------------------------------------
+
+void addTimestampToFirebase(const String& timestamp) {
+  String path = "/TimeUp"; // Path to the list of timestamps
+  FirebaseJson json;
+  json.set("timestamp", timestamp);
+  
+  if (Firebase.pushJSON(fbdo, path.c_str(), json)) {
+    Serial.println("Timestamp added successfully.");
+  } else {
+    Serial.println("Failed to add timestamp: " + fbdo.errorReason());
+  }
+}
+
+void loop() {
+  notifyChange(); // Example function call, adjust as needed
+  BLEConnectIndication(); // Example function call, adjust as needed
+  delay(200);
+
+  if (!color_page) {
+    curr_time = detectMotion();
+    if (curr_time == "") {
+      start_up = false;
+    }
+
+    if (Firebase.ready() && curr_time != "" && !start_up) {
+      addTimestampToFirebase(curr_time); // Add new timestamp to Firebase
+      start_up = true;
+      delay(200);
+    }
+  }
+}

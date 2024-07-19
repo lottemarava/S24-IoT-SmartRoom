@@ -1,11 +1,10 @@
 #include "motion_function.h"
 #include "firestore_functions.h"
-//------------------------------------------------------------------------------------------------------
-//Global Variables
-//------------------------------------------------------------------------------------------------------
-//Preference
+
+// Preference
 Preferences prefs;
-//neopixel related variables
+
+// Neopixel related variables
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 int low_hue = 0;
 int low_saturation = 0;
@@ -13,9 +12,8 @@ int low_value = 0;
 int high_hue = 0;
 int high_saturation = 0;
 int high_value = 0;
-int motion_value = 0;
 
-//time related variables
+// Time related variables
 uint32_t first_motion = 0;
 uint32_t last_motion = 4294967;
 int delay_time = 0;
@@ -27,41 +25,26 @@ int fade_in_time = 0;
 int fade_out_time = 0;
 int transition_time = 0;
 int phase = -1;
+char currentTime[20];
 
-
-
-//motion variables
+// Motion variables
 int radarState = LOW;
 int val = 0;
 bool motion_detected = false;
 
 
-
-
-
-#define MONITOR_SERIAL Serial
-#define RADAR_SERIAL Serial1
-#define RADAR_RX_PIN 32
-#define RADAR_TX_PIN 33
-
-
-ld2410 radar;
 bool engineeringMode = false;
 String command;
-
-
-int lastSeen[20] = {60, 60, 70, 80, 70, 80, 80, 70, 70, 70, 60, 70, 70, 70, 80, 60, 60, 60, 60, 60}; 
+int lastSeen[10] = {60, 60, 70, 80, 70, 80, 80, 70, 70, 70}; 
 int i = 0;
-const int size = 20;
+const int size = 10;
 int sum = 0;
-int j=0;
+int j = 0;
+int motion_value = 0;
 
 
-
-
-
-
-//tracking variables
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Tracking variables
 bool configured = false;
 bool manually_configured = false;
 bool was_configured = false;
@@ -73,69 +56,55 @@ bool was_connected = false;
 bool BT_connected = false;
 std::string page = "0";
 
-
-//BLE related variables
+// BLE related variables
 BLECharacteristic* pCharacteristic_5 = NULL;
 BLECharacteristic* pCharacteristic_8 = NULL;
 
-
+uint32_t lastReading = 0;
+bool radarConnected = false;
+ld2410 radar;
+unsigned long previousMillis = 0; // Variable to store the last time a message was sent
+const long interval =    10000; /*600000;*/     // Interval in milliseconds (10 minutes)
+//DocumentReference docRef;
+//unsigned long sendDataPrevMillis = 0;
+int curr_time = -1;
+volatile bool dataChanged = false;
 
 //------------------------------------------------------------------------------------------------------
-//setup
+// Setup function
 //------------------------------------------------------------------------------------------------------
-void setup(){
-  Serial.begin(115200);
+
+
+
+
+
+void setup() {
+  MONITOR_SERIAL.begin(115200); //Feedback over Serial Monitor
+  //radar.debug(MONITOR_SERIAL); //Uncomment to show debug information from the library on the Serial Monitor. By default this does not show sensor reads as they are very frequent.
+  connect_to_radar();
+  // Connect with preferences
   connectWithPref();
+  // Load settings
   loadPixelSettings();
   loadTimeSettings();
+  // Start BLE
   BLEStart();
+
   initDB();
 
-  MONITOR_SERIAL.begin(115200); //Feedback over Serial Monitor
-    delay(500); //Give a while for Serial Monitor to wake up
-    //radar.debug(Serial); //Uncomment to show debug information from the library on the Serial Monitor. By default this does not show sensor reads as they are very frequent.
-    // RADAR_SERIAL.begin(256000, SERIAL_8N1, RADAR_RX_PIN, RADAR_TX_PIN); //UART for monitoring the radar
-    // MONITOR_SERIAL.begin(115200); //Feedback over Serial Monitor
-    //radar.debug(MONITOR_SERIAL); //Uncomment to show debug information from the library on the Serial Monitor. By default this does not show sensor reads as they are very frequent.
-    RADAR_SERIAL.begin(256000, SERIAL_8N1, RADAR_RX_PIN, RADAR_TX_PIN); //UART for monitoring the radar
-    delay(500);
-    MONITOR_SERIAL.print(F("\nConnect LD2410 radar TX to GPIO:"));
-    MONITOR_SERIAL.println(RADAR_RX_PIN);
-    MONITOR_SERIAL.print(F("Connect LD2410 radar RX to GPIO:"));
-    MONITOR_SERIAL.println(RADAR_TX_PIN);
-    MONITOR_SERIAL.print(F("LD2410 radar sensor initialising: "));
-    if(radar.begin(RADAR_SERIAL))
-    {
-      MONITOR_SERIAL.println(F("OK"));
-      MONITOR_SERIAL.print(F("LD2410 firmware version: "));
-      MONITOR_SERIAL.print(radar.firmware_major_version);
-      MONITOR_SERIAL.print('.');
-      MONITOR_SERIAL.print(radar.firmware_minor_version);
-      MONITOR_SERIAL.print('.');
-      MONITOR_SERIAL.println(radar.firmware_bugfix_version, HEX);
-    }
-    else
-    {
-      MONITOR_SERIAL.println(F("not connected"));
-    }
-
-
 }
 //------------------------------------------------------------------------------------------------------
-//loop
+// Loop function
 //------------------------------------------------------------------------------------------------------
-void loop(){
+
+void loop() {
   notifyChange();
-  BLEConnectIndication();
-  delay(200);
-  if(!color_page)
-    detectMotion();
-  updateDB();
+  BLEConnectIndication(); 
+  delay(100);
+ if(!color_page){
+    bool detected=detectMotion();
+    act_acording_to_time(detected);
+  }
+  
 }
-
-
-
-
-
-
 
