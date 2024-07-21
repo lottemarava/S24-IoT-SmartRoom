@@ -63,7 +63,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   }
 
   Stream<QuerySnapshot> _getActivityStream() {
-    return firestore.collection('Activity').snapshots();
+    return firestore.collection('Activity').orderBy('time', descending: true).snapshots();
   }
 
   Map<String, List<DocumentSnapshot>> _groupDocumentsByDate(List<DocumentSnapshot> documents) {

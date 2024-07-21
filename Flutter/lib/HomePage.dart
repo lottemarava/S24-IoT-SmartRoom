@@ -51,17 +51,32 @@ writeDataWithCharacteristic(String c, String data, BuildContext context) async {
 
     AlertDialog alert = AlertDialog(
       title: Row(
-          children: [
-            Icon(Icons.cancel,color: Colors.red), 
-            SizedBox(width: 8), 
-            Text("Bluetooth Disconnected",style: TextStyle(fontSize: 20,)),
-          ]
+        children: [
+          Icon(
+            Icons.cancel,
+            color: Colors.red,
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              "Bluetooth Disconnected",
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+        ],
       ),
-      content: Text("Connect to Bluetooth again"),
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: <Widget>[
+            Text("Connect to Bluetooth again"),
+          ],
+        ),
+      ),
       actions: [
         okButton,
       ],
     );
+
 
     popup = true;
     showDialog(

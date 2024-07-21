@@ -394,21 +394,35 @@ class _WIFISettingsPageState extends State<WIFISettingsPage> {
                     Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (context) =>BluetoothButtonPage())
                     );},
-                  );
-
-                  AlertDialog alert = AlertDialog(
-                    title: Row(
+                    );
+                    AlertDialog alert = AlertDialog(
+                      title: Row(
                         children: [
-                          Icon(Icons.cancel,color: Colors.red), // Add an icon if you want
-                          SizedBox(width: 8), // Add some space between the icon and text
-                          Text("Bluetooth Disconnected",style: TextStyle(fontSize: 20,)),
-                        ]
-                    ),
-                    content: Text("Connect to Bluetooth again"),
-                    actions: [
-                      okButton,
-                    ],
-                  );
+                          Icon(
+                            Icons.cancel,
+                            color: Colors.red,
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              "Bluetooth Disconnected",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                        ],
+                      ),
+                      content: SingleChildScrollView(
+                        child: ListBody(
+                          children: <Widget>[
+                            Text("Connect to Bluetooth again"),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        okButton,
+                      ],
+                    );
+
 
                 popup = true;
                   showDialog(

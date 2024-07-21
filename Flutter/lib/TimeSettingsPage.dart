@@ -843,23 +843,32 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
                           },
                         );
                         AlertDialog alert = AlertDialog(
-                          title: Row(children: [
-                            Icon(
-                              Icons.check_circle,
-                              color: Colors.green,
-                            ), 
-                            SizedBox(
-                                width:
-                                    8), 
-                            Text(
-                              "Time Cycle Settings Changed",
-                              style: TextStyle(fontSize: 17),
+                          content: SingleChildScrollView(
+                            child: ListBody(
+                              children: <Widget>[
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        "Time Cycle Settings Changed",
+                                        style: TextStyle(fontSize: 17),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ]),
+                          ),
                           actions: [
                             okButton,
                           ],
                         );
+
                         print(widget.transitionTime);
                         print(widget.delayTime);
                         print(widget.fadeIn);
