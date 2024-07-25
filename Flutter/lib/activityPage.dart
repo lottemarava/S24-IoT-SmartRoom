@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:nightlight/main.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-
 class ActivitiesPage extends StatefulWidget {
   const ActivitiesPage({super.key});
 
@@ -11,14 +10,12 @@ class ActivitiesPage extends StatefulWidget {
   State<ActivitiesPage> createState() => _ActivitiesPageState();
 }
 
-
-
 class _ActivitiesPageState extends State<ActivitiesPage> {
-
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   static const String channelId = 'activity_channel';
   static const String channelName = 'Activity Notifications';
   static const String channelDescription = 'Notifications for new activities detected';
+  bool _isFirstLoad = true; // Flag to track the first data load
 
   @override
   void initState() {
@@ -70,7 +67,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     Map<String, List<DocumentSnapshot>> groupedDocuments = {};
     for (var doc in documents) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      String date = data['date']; 
+      var date = data['date'];
 
       if (!groupedDocuments.containsKey(date)) {
         groupedDocuments[date] = [];
@@ -97,10 +94,11 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
           if (snapshot.hasData && snapshot.data != null) {
             List<DocumentSnapshot> documents = snapshot.data!.docs;
             Map<String, List<DocumentSnapshot>> groupedDocuments = _groupDocumentsByDate(documents);
-            if (snapshot.hasData && documents.isNotEmpty) {
+            if (snapshot.hasData && documents.isNotEmpty && !_isFirstLoad) {
               _showNotification('New Activity Detected', 'A new activity has been recorded.');
             }
-            
+            _isFirstLoad = false; // Update the flag after the first load
+
             return Scaffold(
               backgroundColor: Colors.white70,
               appBar: basicAppBar(),
@@ -126,7 +124,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                       ),
                       padding: EdgeInsets.all(8.0),
                     ),
-                    const SizedBox(height: 16), 
+                    const SizedBox(height: 16),
                     Expanded(
                       child: groupedDocuments.isEmpty
                           ? Center(child: Text('No Night Active Times Detected.'))
