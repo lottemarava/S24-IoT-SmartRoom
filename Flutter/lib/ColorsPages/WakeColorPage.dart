@@ -171,19 +171,27 @@ class WakeColorPageState extends State<WakeColorPage> {
                 );
 
                 // set up the AlertDialog
-                AlertDialog alert = AlertDialog(
-                  title: Row(
-                      children: [
-                        Icon(Icons.check_circle,color: Colors.green,), // Add an icon if you want
-                        SizedBox(width: 8), // Add some space between the icon and text
-                        Text("Day Color Settings Changed",style: TextStyle(fontSize: 17),),
-                      ]
-
-                  ),
-                  actions: [
-                    okButton,
+              AlertDialog alert = AlertDialog(
+                title: Row(
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        "Day Color Settings Changed",
+                        style: TextStyle(fontSize: 17),
+                      ),
+                    ),
                   ],
-                );
+                ),
+                actions: [
+                  okButton,
+                ],
+              );
+
 
                 // show the dialog
                 showDialog(
