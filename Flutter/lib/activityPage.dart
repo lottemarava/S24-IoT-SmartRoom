@@ -60,21 +60,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   }
 
   Stream<QuerySnapshot> _getActivityStream() {
-    return firestore.collection('Activity').orderBy('time', descending: true).snapshots();
-  }
-
-  Map<String, List<DocumentSnapshot>> _groupDocumentsByDate(List<DocumentSnapshot> documents) {
-    Map<String, List<DocumentSnapshot>> groupedDocuments = {};
-    for (var doc in documents) {
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      var date = data['date'];
-
-      if (!groupedDocuments.containsKey(date)) {
-        groupedDocuments[date] = [];
-      }
-      groupedDocuments[date]!.add(doc);
-    }
-    return groupedDocuments;
+    return firestore.collection('Dates').snapshots();
   }
 
   @override
@@ -93,7 +79,6 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
         if (snapshot.connectionState == ConnectionState.active) {
           if (snapshot.hasData && snapshot.data != null) {
             List<DocumentSnapshot> documents = snapshot.data!.docs;
-            Map<String, List<DocumentSnapshot>> groupedDocuments = _groupDocumentsByDate(documents);
             if (snapshot.hasData && documents.isNotEmpty && !_isFirstLoad) {
               _showNotification('New Activity Detected', 'A new activity has been recorded.');
             }
@@ -126,12 +111,13 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                     ),
                     const SizedBox(height: 16),
                     Expanded(
-                      child: groupedDocuments.isEmpty
+                      child: documents.isEmpty
                           ? Center(child: Text('No Night Active Times Detected.'))
                           : ListView(
-                              children: groupedDocuments.entries.map((entry) {
-                                String date = entry.key;
-                                List<DocumentSnapshot> docs = entry.value;
+                              children: documents.map((doc) {
+                                String date = doc.id;
+                                Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                                List<dynamic> times = data['time'];
 
                                 return ExpansionTile(
                                   title: Text(
@@ -142,39 +128,24 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                                       color: Colors.teal.shade800,
                                     ),
                                   ),
-                                  children: [
-                                    ListTile(
-                                      title: Text(
-                                        '${docs.length} night active times detected',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.teal.shade700,
+                                  children: times.map((time) {
+                                    return ListTile(
+                                      title: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.teal.shade100,
+                                          borderRadius: BorderRadius.circular(8.0),
+                                        ),
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'Time: $time',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    ...docs.map((doc) {
-                                      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                                      String time = data['time'];
-
-                                      return ListTile(
-                                        title: Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.teal.shade100,
-                                            borderRadius: BorderRadius.circular(8.0),
-                                          ),
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            'Time: $time',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ],
+                                    );
+                                  }).toList(),
                                 );
                               }).toList(),
                             ),
