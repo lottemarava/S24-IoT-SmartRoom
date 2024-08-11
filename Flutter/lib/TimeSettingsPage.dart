@@ -463,7 +463,7 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
                       
                         Icon(
                           Icons.wb_sunny,
-                          color : is_awake ? Color.fromARGB(255, 19, 226, 123) : Colors.black ,
+                          color : is_awake ? const Color.fromARGB(255, 255, 27, 11) : Colors.black ,
                         ),
                         
                         IconButton(
