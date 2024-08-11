@@ -50,6 +50,7 @@ The following libraries were installed and used for this project:
 
 ---
 ## Project Diagram
+![Connection Diagram](https://github.com/lottemarava/S24-IoT-SmartRoom/blob/main/connectionDiagram.png)
 
 ## Project Poster
 For a detailed overview, refer to the project poster. This project is part of ICST - The Interdisciplinary Center for Smart Technologies, Taub Faculty of Computer Science, Technion.
