@@ -12,6 +12,20 @@
 
 ---
 
+## 
+Project Overall Explanation:
+---
+The night light project is designed to enhance both sleep quality and nighttime mobility for elderly residents in nursing homes. This specialized lighting solution caters to the specific needs of older adults by integrating motion detection with customizable features. The night light offers adjustable colors and intensity levels tailored to create a sleep-friendly environment. By using a motion detection sensor, the light adapts to movements, ensuring safe navigation during the night without disrupting the sleep experience.
+---
+## Our Project in details
+
+## Main Features: 
+1.Time-Based Lighting: Adjusts light color and intensity for better sleep.
+2.Motion Detection: Utilizes a radio sensor for safe navigation at night.
+3.Data Logging: Saves activity data to Firebase, accessible via a Flutter app
+
+
+
 ## Folder Structure
 
 - **ESP32**: Source code for the ESP side (firmware).
