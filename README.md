@@ -14,8 +14,9 @@
 
 ## Project Overall Explanation:
 
+
 The night light project is designed to enhance both sleep quality and nighttime mobility for elderly residents in nursing homes. This specialized lighting solution caters to the specific needs of older adults by integrating motion detection with customizable features. The night light offers adjustable colors and intensity levels tailored to create a sleep-friendly environment. By using a motion detection sensor, the light adapts to movements, ensuring safe navigation during the night without disrupting the sleep experience.
----
+
 ## Our Project in details
 
 ## Main Features: 
