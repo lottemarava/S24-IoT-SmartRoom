@@ -20,11 +20,11 @@ The night light project is designed to enhance both sleep quality and nighttime 
 ## Our Project in details
 
 ## Main Features: 
-1.Time-Based Lighting: Adjusts light color and intensity for better sleep.
+1.**Time-Based Lighting:** Adjusts light color and intensity for better sleep.
 
-2.Motion Detection: Utilizes a radio sensor for safe navigation at night.
+2.**Motion Detection:** Utilizes a radio sensor for safe navigation at night.
 
-3.Data Logging: Saves activity data to Firebase, accessible via a Flutter app
+3.**Data Logging:** Saves activity data to Firebase, accessible via a Flutter app
 
 
 
