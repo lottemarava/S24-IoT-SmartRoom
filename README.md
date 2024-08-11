@@ -28,6 +28,12 @@ The night light project is designed to enhance both sleep quality and nighttime 
 
 ## How To Use : 
 
+1.Download 'nightlight' app.
+2.Turn on both bluetooth and location in your phone.
+3.Press on connect to connect to the ESP via bluetooth and give permissions for location/bluetooth if asked.
+4.In WiFi page enter network information to connect in order for the ESP to keep track of the current time (doing so once is enough as long as the network info doesn't change since they will be saved).
+5.if connecting to WiFi fails the option to send the phone's current time to ESP can be used *this option is less accurate (up to 1 minute error) and the time will be lost if if the ESP gets turned off.
+6.Set the preferred settings you want to use and Do Not Forget To Press Save :) (the settings will be saved untill changed again).
 
 ## Folder Structure
 
