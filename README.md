@@ -48,7 +48,9 @@ The night light project is designed to enhance both sleep quality and nighttime 
 
 ---
 ## Folder Description
-
+- **Flutter** : dart code for our Flutter app.
+- **UnitTests** : tests for individual hardware components (input / output devices).
+- **hsv_night_light** : source code for the esp side (firmware).
 ---
 ## Arduino/ESP32 Libraries
 
