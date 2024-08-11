@@ -47,7 +47,9 @@ The night light project is designed to enhance both sleep quality and nighttime 
 - **Assets**: 3D printed parts and audio files used in this project.
 
 ---
+## Folder Description
 
+---
 ## Arduino/ESP32 Libraries
 
 The following libraries were installed and used for this project:
