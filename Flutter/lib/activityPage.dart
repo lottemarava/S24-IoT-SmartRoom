@@ -16,6 +16,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   static const String channelName = 'Activity Notifications';
   static const String channelDescription = 'Notifications for new activities detected';
   bool _isFirstLoad = true; // Flag to track the first data load
+  String? _requestedDate; // Store the requested date
 
   @override
   void initState() {
@@ -60,146 +61,145 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   }
 
   Stream<QuerySnapshot> _getActivityStream() {
-    return firestore.collection('Activity').orderBy('time', descending: true).snapshots();
-  }
-
-  Map<String, List<DocumentSnapshot>> _groupDocumentsByDate(List<DocumentSnapshot> documents) {
-    Map<String, List<DocumentSnapshot>> groupedDocuments = {};
-    for (var doc in documents) {
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      var date = data['date'];
-
-      if (!groupedDocuments.containsKey(date)) {
-        groupedDocuments[date] = [];
-      }
-      groupedDocuments[date]!.add(doc);
+    if (_requestedDate != null && _requestedDate!.isNotEmpty) {
+      return firestore
+          .collection('Dates')
+          .where(FieldPath.documentId, isEqualTo: _requestedDate)
+          .snapshots();
     }
-    return groupedDocuments;
+    return firestore.collection('Dates').snapshots();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: _getActivityStream(),
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return Scaffold(
-            backgroundColor: Colors.white70,
-            appBar: basicAppBar(),
-            body: Center(child: Text('Error: ${snapshot.error}')),
-          );
-        }
+  void _requestDate(String date) {
+    setState(() {
+      _requestedDate = date;
+    });
+  }
 
-        if (snapshot.connectionState == ConnectionState.active) {
-          if (snapshot.hasData && snapshot.data != null) {
-            List<DocumentSnapshot> documents = snapshot.data!.docs;
-            Map<String, List<DocumentSnapshot>> groupedDocuments = _groupDocumentsByDate(documents);
-            if (snapshot.hasData && documents.isNotEmpty && !_isFirstLoad) {
-              _showNotification('New Activity Detected', 'A new activity has been recorded.');
-            }
-            _isFirstLoad = false; // Update the flag after the first load
+@override
+Widget build(BuildContext context) {
+  TextEditingController _dateController = TextEditingController();
 
-            return Scaffold(
-              backgroundColor: Colors.white70,
-              appBar: basicAppBar(),
-              body: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.teal.shade600,
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Night Active Times Detected',
-                        style: TextStyle(
-                          fontSize: 21,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      padding: EdgeInsets.all(8.0),
-                    ),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: groupedDocuments.isEmpty
-                          ? Center(child: Text('No Night Active Times Detected.'))
-                          : ListView(
-                              children: groupedDocuments.entries.map((entry) {
-                                String date = entry.key;
-                                List<DocumentSnapshot> docs = entry.value;
+  return Scaffold(
+    backgroundColor: Colors.white70,
+    appBar: basicAppBar(),
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.teal.shade600,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              'Night Active Times Detected',
+              style: TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            padding: EdgeInsets.all(8.0),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _dateController,
+            decoration: InputDecoration(
+              labelText: 'Enter date (YYYY-MM-DD)',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: () {
+              _requestDate(_dateController.text);
+            },
+            child: Text('Request Data By Date'),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: _getActivityStream(),
+              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
 
-                                return ExpansionTile(
-                                  title: Text(
-                                    date,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.teal.shade800,
-                                    ),
+                if (snapshot.connectionState == ConnectionState.active) {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    List<DocumentSnapshot> documents = snapshot.data!.docs;
+                    if (documents.isNotEmpty && !_isFirstLoad) {
+                      _showNotification('New Activity Detected', 'A new activity has been recorded.');
+                    }
+                    _isFirstLoad = false; // Update the flag after the first load
+
+                    return documents.isEmpty
+                        ? Center(child: Text('No Night Active Times Detected.'))
+                        : ListView(
+                            children: documents.map((doc) {
+                              String date = doc.id;
+                              Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+                              List<dynamic> times = data['time'];
+
+                              return ExpansionTile(
+                                title: Text(
+                                  date,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.teal.shade800,
                                   ),
-                                  children: [
-                                    ListTile(
-                                      title: Text(
-                                        '${docs.length} night active times detected',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.teal.shade700,
-                                        ),
+                                ),
+                                children: [
+                                  ListTile(
+                                    title: Text(
+                                      '${times.length} night active times detected',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.teal.shade700,
                                       ),
                                     ),
-                                    ...docs.map((doc) {
-                                      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                                      String time = data['time'];
-
-                                      return ListTile(
-                                        title: Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.teal.shade100,
-                                            borderRadius: BorderRadius.circular(8.0),
-                                          ),
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Text(
-                                            'Time: $time',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                  ),
+                                  ...times.map((time) {
+                                    return ListTile(
+                                      title: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.teal.shade100,
+                                          borderRadius: BorderRadius.circular(8.0),
+                                        ),
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text(
+                                          'Time: $time',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      );
-                                    }).toList(),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          } else {
-            return Scaffold(
-              backgroundColor: Colors.white70,
-              appBar: basicAppBar(),
-              body: Center(child: Text('No Night Active Times Detected.')),
-            );
-          }
-        }
+                                      ),
+                                    );
+                                  }).toList(),
+                                ],
+                              );
+                            }).toList(),
+                          );
+                  } else {
+                    return Center(child: Text('No Night Active Times Detected.'));
+                  }
+                }
 
-        return Scaffold(
-          backgroundColor: Colors.white70,
-          appBar: basicAppBar(),
-          body: Center(child: CircularProgressIndicator()),
-        );
-      },
-    );
-  }
+                return Center(child: CircularProgressIndicator());
+              },
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 AppBar basicAppBar() {
@@ -216,4 +216,5 @@ AppBar basicAppBar() {
       ),
     ),
   );
+}
 }
