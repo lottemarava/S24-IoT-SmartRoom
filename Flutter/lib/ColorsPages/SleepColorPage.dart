@@ -144,21 +144,24 @@ class SleepColorPageState extends State<SleepColorPage> {
       )
           : Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Please Choose Night Mode Color',
-                      style: TextStyle(fontSize: 19,fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(width: 10,),
-                    IconButton(
-                      icon: Icon(Icons.help),
-                      onPressed: () {
-                        _showInstructions();
-                      },
-                    ),
-                  ],
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Please Choose Night Mode Color',
+                        style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(width: 10),
+                      IconButton(
+                        icon: Icon(Icons.help),
+                        onPressed: () {
+                          _showInstructions();
+                        },
+                      ),
+                    ],
+                  ),
                 ),
                 _buildHead(sleepColor),
                 PaletteValuePicker(
