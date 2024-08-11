@@ -14,6 +14,9 @@ void main() {
   runApp(const MyApp());
 }
 */
+
+bool is_awake = false;
+
 class myProvider extends ChangeNotifier {
   bool wifiConnected = false;
   bool timeConfigured = false;
