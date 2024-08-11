@@ -56,9 +56,12 @@ The night light project is designed to enhance both sleep quality and nighttime 
 
 The following libraries were installed and used for this project:
 
-- **Library 1** - Version XXXX
-- **Library 2** - Version XXXX
-- **Library 3** - Version XXXX
+- **AdaFruit Neopixek** - Version 1.12.3
+- **SD** - Version 1.3.0
+- **FireBase Arduino Client Library for ESP8266 & ESP32** - Version 4.4.14
+- **FireBase ESP32 Client** - Version 4.4.14
+- **Time** - Version 1.6.1
+- **ld2410** - Version 0.1.3
 
 ---
 ## Hardware Used
