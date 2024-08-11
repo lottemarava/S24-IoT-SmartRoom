@@ -26,6 +26,7 @@ The night light project is designed to enhance both sleep quality and nighttime 
 
 3.**Data Logging:** Saves activity data to Firebase, accessible via a Flutter app
 
+## How To Use : 
 
 
 ## Folder Structure
@@ -48,6 +49,7 @@ The following libraries were installed and used for this project:
 - **Library 3** - Version XXXX
 
 ---
+## Project Diagram
 
 ## Project Poster
 For a detailed overview, refer to the project poster. This project is part of ICST - The Interdisciplinary Center for Smart Technologies, Taub Faculty of Computer Science, Technion.
