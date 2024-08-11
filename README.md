@@ -35,6 +35,8 @@ The night light project is designed to enhance both sleep quality and nighttime 
 5.if connecting to WiFi fails the option to send the phone's current time to ESP can be used *this option is less accurate (up to 1 minute error) and the time will be lost if if the ESP gets turned off.
 6.Set the preferred settings you want to use and Do Not Forget To Press Save :) (the settings will be saved untill changed again).
 
+![Connection Diagram](https://github.com/lottemarava/S24-IoT-SmartRoom/blob/main/lighttranstiojn.png)
+
 ## Folder Structure
 
 - **ESP32**: Source code for the ESP side (firmware).
