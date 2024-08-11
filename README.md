@@ -57,6 +57,12 @@ The following libraries were installed and used for this project:
 - **Library 3** - Version XXXX
 
 ---
+## Hardware Used
+- 1 X ESP32 (30pins)
+- 1 X HLK-LD2410C
+- 1 X Neopixel 
+- 1 X Micro SD 
+
 ## Project Diagram
 ![Connection Diagram](https://github.com/lottemarava/S24-IoT-SmartRoom/blob/main/connectionDiagram.png)
 
