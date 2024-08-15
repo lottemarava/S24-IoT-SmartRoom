@@ -22,10 +22,9 @@ import * as moment from "moment";
 admin.initializeApp();
 
 exports.sendNotification = functions.firestore
-  .document("Dates/{docId}")
+  .document("woke_up_collection/{docId}")
   .onUpdate((change, context) => {
     const todayId = moment().format("YYYY-MM-DD");
-
     const updatedDocId = context.params.docId;
 
     if (updatedDocId === todayId) {
@@ -35,14 +34,18 @@ exports.sendNotification = functions.firestore
           body: "A new activity was detected",
         },
       };
-      return admin.messaging().sendToTopic("all", payload)
-        .then((response) => {
-          console.log("Successfully sent message:", response);
-          return null;
-        })
-        .catch((error) => {
-          console.log("Error sending message:", error);
-        });
+      try {
+        admin.messaging().sendToTopic("all", payload)
+          .then((response) => {
+            console.log("Successfully sent message:", response);
+            return null;
+          })
+          .catch((error) => {
+            console.log("Error sending message:", error);
+          });
+      } catch (error) {
+        console.error("error sending message");
+      }
     }
     return null;
   });
