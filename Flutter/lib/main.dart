@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'HomePage.dart';
 import 'NavigateToBluetooth.dart';
@@ -14,6 +16,45 @@ void main() {
   runApp(const MyApp());
 }
 */
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'high_importance_channel', // id
+  'High Importance Notifications', 
+  importance: Importance.high,
+);
+
+Future<void> initLocalNotifications() async {
+  final AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+  final InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  if (message.notification != null) {
+      const AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails(
+        'high_importance_channel',
+        'High Importance Notifications',
+        importance: Importance.high,
+        priority: Priority.high,
+        ticker: 'ticker',
+      );
+      const NotificationDetails platformChannelSpecifics =
+          NotificationDetails(android: androidPlatformChannelSpecifics);
+      flutterLocalNotificationsPlugin.show(
+        0,
+        message.notification?.title,
+        message.notification?.body,
+        platformChannelSpecifics,
+        payload: 'item x',
+      );
+    }
+}
+
 class myProvider extends ChangeNotifier {
   bool wifiConnected = false;
   bool timeConfigured = false;
@@ -41,6 +82,7 @@ bool escaped = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   WidgetsFlutterBinding.ensureInitialized();
   runApp(App());      
 }
@@ -129,6 +171,9 @@ class StartPage extends StatefulWidget {
   }
 
 class _MyAppState extends State<StartPage> with WidgetsBindingObserver {
+  late FirebaseMessaging _firebaseMessaging;
+  late FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin;
+
   void updateWiFiStatus(bool isConnected) {
     Provider.of<myProvider>(context, listen: false)
         .updateWiFiStatus(isConnected);
@@ -142,10 +187,55 @@ class _MyAppState extends State<StartPage> with WidgetsBindingObserver {
     Provider.of<myProvider>(context, listen: false)
         .updateTimeManConfigured(isConfigured);
   }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    _firebaseMessaging = FirebaseMessaging.instance;
+    _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    _flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("Message received: ${message.notification?.title}");
+      _showNotification(message.notification);
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print("Notification opened: ${message.notification?.title}");
+      // Handle background notification tap (e.g., navigate to a specific screen)
+    });
+
+    _firebaseMessaging.subscribeToTopic('NightLight');
+
+  }
+  
+void _showNotification(RemoteNotification? notification) {
+  print("recieved notification");
+    if (notification != null) {
+      const AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails(
+        'high_importance_channel',
+        'High Importance Notifications',
+        importance: Importance.high,
+        priority: Priority.high,
+        ticker: 'ticker',
+      );
+      const NotificationDetails platformChannelSpecifics =
+          NotificationDetails(android: androidPlatformChannelSpecifics);
+      _flutterLocalNotificationsPlugin.show(
+        0,
+        notification.title,
+        notification.body,
+        platformChannelSpecifics,
+        payload: 'item x',
+      );
+    }
   }
 
   @override
