@@ -3,17 +3,33 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'HomePage.dart';
 import 'NavigateToBluetooth.dart';
-import 'WIFISettingsPage.dart';
+import 'activityPage.dart';
 
-/*
-void main() {
-  runApp(const MyApp());
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'high_importance_channel', // id
+  'High Importance Notifications', 
+  importance: Importance.high,
+);
+
+Future<void> initLocalNotifications() async {
+  final AndroidInitializationSettings initializationSettingsAndroid = 
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  final InitializationSettings initializationSettings = 
+      InitializationSettings(android: initializationSettingsAndroid);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 }
-*/
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
 
 bool is_awake = false;
 
@@ -24,27 +40,28 @@ class myProvider extends ChangeNotifier {
 
   void updateWiFiStatus(bool isConnected) async {
     wifiConnected = isConnected;
-    notifyListeners(); // Notify listeners of the change
+    notifyListeners();
   }
 
   void updateTimeConfigured(bool isConfigured) async {
     timeConfigured = isConfigured;
-    notifyListeners(); // Notify listeners of the change
-  }
-  void updateTimeManConfigured(bool isConfigured) async {
-    timeManConfigured = isConfigured;
-    notifyListeners(); // Notify listeners of the change
+    notifyListeners();
   }
 
+  void updateTimeManConfigured(bool isConfigured) async {
+    timeManConfigured = isConfigured;
+    notifyListeners();
+  }
 }
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 bool popup = false;
 bool escaped = false;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  WidgetsFlutterBinding.ensureInitialized();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(App());      
 }
 
@@ -83,7 +100,6 @@ class App extends StatelessWidget {
                 fontFamily: 'Alef',
               ),
               home: StartPage(),
-              //home: MyHomePage(title: 'Night light'),
             ),
           );
         }
@@ -101,54 +117,57 @@ class App extends StatelessWidget {
 }
 
 class StartPage extends StatefulWidget {
-  const StartPage({super.key}) ;
-    @override
-    _MyAppState createState() => _MyAppState();
-    Widget build(BuildContext context) {
-      /*return FutureBuilder<List<BluetoothDevice>>(
-        future: FlutterBlue.instance.connectedDevices,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Stream is still loading
-            return CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            // Handle error
-            return Text('Error: ${snapshot.error}');
-          } else {
-            // Check if there is at least one connected device
-            List<BluetoothDevice> connectedDevices = snapshot.data!;
-            for (var device in connectedDevices) {
-              if (device.name.contains("ESP32")) {
-                return MyHomePage(title: 'Night light');
-              }
-            }
-            return BluetoothButtonPage();
-            //return MyHomePage(title: 'Night light');
-          }
-        }
-      );*/
-      return MyHomePage(title: 'Night light');
-    }
-  }
+  const StartPage({super.key});
+  @override
+  _MyAppState createState() => _MyAppState();
+}
 
 class _MyAppState extends State<StartPage> with WidgetsBindingObserver {
+  late FirebaseMessaging _firebaseMessaging;
+
   void updateWiFiStatus(bool isConnected) {
-    Provider.of<myProvider>(context, listen: false)
-        .updateWiFiStatus(isConnected);
+    Provider.of<myProvider>(context, listen: false).updateWiFiStatus(isConnected);
   }
 
   void updateTimeConfigured(bool isConfigured) {
-    Provider.of<myProvider>(context, listen: false)
-        .updateTimeConfigured(isConfigured);
+    Provider.of<myProvider>(context, listen: false).updateTimeConfigured(isConfigured);
   }
+
   void updateTimeManConfigured(bool isConfigured) {
-    Provider.of<myProvider>(context, listen: false)
-        .updateTimeManConfigured(isConfigured);
+    Provider.of<myProvider>(context, listen: false).updateTimeManConfigured(isConfigured);
   }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    _firebaseMessaging = FirebaseMessaging.instance;
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("Message received: ${message.notification?.title}");
+      _showNotification(message.notification);
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print("Notification opened: ${message.notification?.title}");
+      
+      if (message.notification != null) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ActivitiesPage(),
+          ),
+        );
+      }
+    });
+
+    // Prevent Firebase from automatically displaying notifications
+    _firebaseMessaging.subscribeToTopic('NightLight');
   }
 
   @override
@@ -157,7 +176,7 @@ class _MyAppState extends State<StartPage> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  @override
+   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (exiting) {
       if (initialized)
@@ -232,5 +251,27 @@ class _MyAppState extends State<StartPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return BluetoothButtonPage();
+  }
+}
+
+void _showNotification(RemoteNotification? notification) {
+  if (notification != null) {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'high_importance_channel',
+      'High Importance Notifications',
+      importance: Importance.high,
+      priority: Priority.high,
+      ticker: 'ticker',
+    );
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+    flutterLocalNotificationsPlugin.show(
+      0,
+      notification.title,
+      notification.body,
+      platformChannelSpecifics,
+      payload: 'item x',
+    );
   }
 }

@@ -52,6 +52,7 @@ dependencies:
   firebase_auth: ^4.20.0
   firebase_database: ^10.5.7
   flutter_local_notifications: ^10.0.0
+  firebase_messaging: ^14.9.4
   #flutter_blue_plus: ^1.31.13
   #flutter_reactive_ble: ^5.3.1
 
