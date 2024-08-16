@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:nightlight/main.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class ActivitiesPage extends StatefulWidget {
   const ActivitiesPage({super.key});
@@ -13,54 +12,8 @@ class ActivitiesPage extends StatefulWidget {
 }
 
 class _ActivitiesPageState extends State<ActivitiesPage> {
-  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-  static const String channelId = 'activity_channel';
-  static const String channelName = 'Activity Notifications';
-  static const String channelDescription = 'Notifications for new activities detected';
-  bool _isFirstLoad = true; // Flag to track the first data load
+
   String? _requestedDate; // Store the requested date
-
-  @override
-  void initState() {
-    super.initState();
-    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('mipmap/ic_launcher');
-    final InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-    _createNotificationChannel();
-  }
-
-  void _createNotificationChannel() async {
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      channelId,
-      channelName,
-      description: channelDescription,
-      importance: Importance.max,
-    );
-
-    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
-  }
-
-  Future<void> _showNotification(String title, String body) async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(channelId, channelName,
-            importance: Importance.max, priority: Priority.high, showWhen: false);
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      title,
-      body,
-      platformChannelSpecifics,
-      payload: 'item x',
-    );
-  }
 
   Stream<QuerySnapshot> _getActivityStream() {
     if (_requestedDate != null && _requestedDate!.isNotEmpty) {
@@ -134,15 +87,13 @@ Widget build(BuildContext context) {
                 if (snapshot.connectionState == ConnectionState.active) {
                   if (snapshot.hasData && snapshot.data != null) {
                     List<DocumentSnapshot> documents = snapshot.data!.docs;
-                    if (documents.isNotEmpty && !_isFirstLoad) {
-                      _showNotification('New Activity Detected', 'A new activity has been recorded.');
+                    if (documents.isNotEmpty) {
                       is_awake = true;
                       
                       Timer(Duration(minutes: 2), () {
                           is_awake = false; // Change back to grey after 2 minutes
                         });
                     }
-                    _isFirstLoad = false; // Update the flag after the first load
 
                     return documents.isEmpty
                         ? Center(child: Text('No Night Active Times Detected.'))

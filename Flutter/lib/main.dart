@@ -31,7 +31,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }
 
-bool is_awake = false;
 
 class myProvider extends ChangeNotifier {
   bool wifiConnected = false;
@@ -57,6 +56,7 @@ class myProvider extends ChangeNotifier {
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 bool popup = false;
 bool escaped = false;
+bool is_awake = false;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
