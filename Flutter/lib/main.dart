@@ -31,6 +31,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }
 
+bool is_awake = false;
+
 class myProvider extends ChangeNotifier {
   bool wifiConnected = false;
   bool timeConfigured = false;

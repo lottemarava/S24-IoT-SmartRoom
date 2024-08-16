@@ -3,9 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:nightlight/ColorsPages/SleepColorPage.dart';
 import 'package:nightlight/ColorsPages/WakeColorPage.dart';
+import 'package:nightlight/main.dart';
 import 'HomePage.dart';
-import 'package:provider/provider.dart'; 
-import 'package:percent_indicator/percent_indicator.dart'; 
+import 'package:provider/provider.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'package:widget_zoom/widget_zoom.dart';
@@ -348,7 +349,7 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
     );
   }
 
-  void _showRadarInstruction() {
+    void _showRadarInstruction() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -459,21 +460,27 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
                       children: [
                         // Text("Choose Time Settings",style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
                         //SizedBox(width: 30,),
+                      
+                        Icon(
+                          Icons.wb_sunny,
+                          color : is_awake ? const Color.fromARGB(255, 255, 27, 11) : Colors.black ,
+                        ),
+                        
                         IconButton(
-                          icon: Icon(Icons.auto_graph_outlined),
+                          icon: Icon(Icons.auto_graph_outlined, color: Colors.black),
                           onPressed: () {
                             _showGraph();
                           },
                         ),
                         IconButton(
-                          icon: Icon(Icons.help),
+                          icon: Icon(Icons.help, color: Colors.black),
                           onPressed: () {
                             _showInstructions();
                           },
                         ),
 
                         IconButton(
-                          icon: Icon(Icons.bed),
+                          icon: Icon(Icons.bed, color: Colors.black),
                           onPressed: () {
                             _showRadarInstruction();
                           },
@@ -596,10 +603,8 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
                                 value: index * 10,
                                 child: Row(
                                   children: [
-                                    Text('${index * 10}'), 
-                                    SizedBox(
-                                        width:
-                                            4), 
+                                    Text('${index * 10}'),
+                                    SizedBox(width: 4),
                                     Text('min'),
                                   ],
                                 ),
@@ -667,9 +672,7 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
                                 child: Row(
                                   children: [
                                     Text('${index * 10}'),
-                                    SizedBox(
-                                        width:
-                                            4),
+                                    SizedBox(width: 4),
                                     Text('min'),
                                   ],
                                 ),
@@ -730,9 +733,7 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
                                 child: Row(
                                   children: [
                                     Text('${index * 10}'),
-                                    SizedBox(
-                                        width:
-                                            4),
+                                    SizedBox(width: 4),
                                     Text('min'),
                                   ],
                                 ),
@@ -779,8 +780,7 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
                         ),
                       ),
                       trailing: SizedBox(
-                        width:
-                            100, 
+                        width: 100,
                         child: DropdownButton<int>(
                           value: widget.delayTime,
                           onChanged: (int? newValue) {
@@ -796,9 +796,7 @@ class _TimeSettingsPageState extends State<TimeSettingsPage> {
                                 child: Row(
                                   children: [
                                     Text('${index * 10}'),
-                                    SizedBox(
-                                        width:
-                                            4),
+                                    SizedBox(width: 4),
                                     Text('sec'),
                                   ],
                                 ),

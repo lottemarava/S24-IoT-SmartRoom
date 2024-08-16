@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:nightlight/main.dart';
@@ -63,11 +65,11 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   Stream<QuerySnapshot> _getActivityStream() {
     if (_requestedDate != null && _requestedDate!.isNotEmpty) {
       return firestore
-          .collection('Dates')
+          .collection('woke_up_collection')
           .where(FieldPath.documentId, isEqualTo: _requestedDate)
           .snapshots();
     }
-    return firestore.collection('Dates').snapshots();
+    return firestore.collection('woke_up_collection').snapshots();
   }
 
   void _requestDate(String date) {
@@ -134,6 +136,11 @@ Widget build(BuildContext context) {
                     List<DocumentSnapshot> documents = snapshot.data!.docs;
                     if (documents.isNotEmpty && !_isFirstLoad) {
                       _showNotification('New Activity Detected', 'A new activity has been recorded.');
+                      is_awake = true;
+                      
+                      Timer(Duration(minutes: 2), () {
+                          is_awake = false; // Change back to grey after 2 minutes
+                        });
                     }
                     _isFirstLoad = false; // Update the flag after the first load
 
@@ -143,7 +150,7 @@ Widget build(BuildContext context) {
                             children: documents.map((doc) {
                               String date = doc.id;
                               Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-                              List<dynamic> times = data['time'];
+                              List<dynamic> times = data['appended_data'];
 
                               return ExpansionTile(
                                 title: Text(
