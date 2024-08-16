@@ -174,31 +174,34 @@ class _MyAppState extends State<StartPage> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  @override
+   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     if (exiting) {
-      if (initialized) await targetDevice.disconnect();
+      if (initialized)
+        await targetDevice.disconnect();
       connected = false;
       exiting = false;
-    } else {
+      print("ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ");
+    }
+    else {
       switch (state) {
         case AppLifecycleState.resumed:
+        // --
+          print(connected);
+          print(inside);
+          print(popup);
+          print(escaped);
           if (!connected && !inside && !popup && !escaped) {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return PopScope(
-                  child: Center(child: CircularProgressIndicator()),
-                  canPop: false,
-                  onPopInvoked: (bool didPop) {
-                    return;
-                  },
-                );
-              },
-            );
-            bool thisConnected = false;
+            showDialog(context: context, builder: (context) {
+              return PopScope(child: Center(child: CircularProgressIndicator()),
+                canPop: false,
+                onPopInvoked: (bool didPop) {
+                  return;
+                },);
+            },);
+            bool this_connected = false;
             Future.delayed(const Duration(milliseconds: 5000), () async {
-              if (!thisConnected) {
+              if (!this_connected) {
                 escaped = true;
                 Navigator.of(context).pop();
               }
@@ -206,26 +209,38 @@ class _MyAppState extends State<StartPage> with WidgetsBindingObserver {
             await targetDevice.connect(autoConnect: true);
             await discoverServices(context);
             connected = true;
-            thisConnected = true;
+            this_connected = true;
             if (!escaped)
               Navigator.of(context).pop();
             else
               escaped = false;
           }
+          print('Resumed');
           break;
         case AppLifecycleState.inactive:
+        // --
+          print('Inactive');
           break;
         case AppLifecycleState.paused:
-          if (initialized && connected) targetDevice.disconnect();
+        // --
+          if (initialized && connected)
+            targetDevice.disconnect();
           connected = false;
+          print('Paused');
           break;
         case AppLifecycleState.detached:
-          if (initialized && connected) targetDevice.disconnect();
+        // --
+          if (initialized && connected)
+            targetDevice.disconnect();
           connected = false;
+          print('Detached');
           break;
         case AppLifecycleState.hidden:
-          if (initialized && connected) targetDevice.disconnect();
+        // A new **hidden** state has been introduced in latest flutter version
+          if (initialized && connected)
+            targetDevice.disconnect();
           connected = false;
+          print('Hidden');
           break;
       }
     }
