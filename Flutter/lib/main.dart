@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -273,5 +274,10 @@ void _showNotification(RemoteNotification? notification) {
       platformChannelSpecifics,
       payload: 'item x',
     );
+    is_awake = true;
+                      
+    Timer(Duration(minutes: 2), () {
+        is_awake = false; // Change back to grey after 2 minutes
+    });
   }
 }

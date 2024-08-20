@@ -87,13 +87,6 @@ Widget build(BuildContext context) {
                 if (snapshot.connectionState == ConnectionState.active) {
                   if (snapshot.hasData && snapshot.data != null) {
                     List<DocumentSnapshot> documents = snapshot.data!.docs;
-                    if (documents.isNotEmpty) {
-                      is_awake = true;
-                      
-                      Timer(Duration(minutes: 2), () {
-                          is_awake = false; // Change back to grey after 2 minutes
-                        });
-                    }
 
                     return documents.isEmpty
                         ? Center(child: Text('No Night Active Times Detected.'))
