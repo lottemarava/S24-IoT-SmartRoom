@@ -7,8 +7,8 @@
 #include <addons/TokenHelper.h>
 
 /* 1. Define the WiFi credentials */
-const char *ssid = "Lottem";
-const char *password = "206965212";
+const char *ssid = "";
+const char *password = "";
 
 const char *ntpServer1 = "pool.ntp.org";
 const char *ntpServer2 = "time.nist.gov";
@@ -18,14 +18,14 @@ const int daylightOffset_sec = 3600;
 const char *time_zone = "CET-1CEST,M3.5.0,M10.5.0/3";  // TimeZone rule for Europe/Rome including daylight adjustment rules (optional)
 
 /* 2. Define the API Key */
-#define API_KEY "AIzaSyDt7g0i9R7u7SJEt7S6q0Z-f6IC01h81KE"
+#define API_KEY ""
 
 /* 3. Define the project ID */
-#define FIREBASE_PROJECT_ID "smart-room-6eed5"
+#define FIREBASE_PROJECT_ID ""
 
 /* 4. Define the user Email and password that alreadey registerd or added in your project */
-#define USER_EMAIL "lottemarava@gmail.com"
-#define USER_PASSWORD "123789"
+#define USER_EMAIL ""
+#define USER_PASSWORD ""
 
 // Define Firebase Data object
 FirebaseData fbdo;
