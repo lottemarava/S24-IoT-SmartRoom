@@ -239,7 +239,6 @@ class _MyAppState extends State<StartPage> with WidgetsBindingObserver {
           print('Detached');
           break;
         case AppLifecycleState.hidden:
-        // A new **hidden** state has been introduced in latest flutter version
           if (initialized && connected)
             targetDevice.disconnect();
           connected = false;
