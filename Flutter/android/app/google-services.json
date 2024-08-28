@@ -1,13 +1,14 @@
 {
   "project_info": {
-    "project_number": "351670679258",
-    "project_id": "smartroom-99a1c",
-    "storage_bucket": "smartroom-99a1c.appspot.com"
+    "project_number": "1023350086301",
+    "firebase_url": "https://smart-room-6eed5-default-rtdb.firebaseio.com",
+    "project_id": "smart-room-6eed5",
+    "storage_bucket": "smart-room-6eed5.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:351670679258:android:e47198f253900539d2d7e3",
+        "mobilesdk_app_id": "1:1023350086301:android:ded8c1f6a81a4cabb79274",
         "android_client_info": {
           "package_name": "com.nightlight.nightlight"
         }
@@ -15,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": ""
+          "current_key": "AIzaSyDt7g0i9R7u7SJEt7S6q0Z-f6IC01h81KE"
         }
       ],
       "services": {

@@ -1,5 +1,6 @@
 #include "motion_function.h"
 #include "firestore_functions.h"
+#include "SD_functions.h"
 
 // Preference
 Preferences prefs;
@@ -91,6 +92,9 @@ void setup() {
   BLEStart();
 
   initDB();
+
+  SD_setup();
+  delay(1000);
 
 }
 //------------------------------------------------------------------------------------------------------

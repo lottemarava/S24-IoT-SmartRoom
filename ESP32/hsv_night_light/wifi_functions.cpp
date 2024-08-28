@@ -24,7 +24,7 @@ void connectWithPref()
     IPAddress dns(8,8,8,8);
     WiFi.mode(WIFI_STA);
     WiFi.begin(last_ssid, last_pw);
-    delay(2000);
+    delay(1000);
     if(WiFi.status() == WL_CONNECTED)
     {
       configTime(0, 0, ntpServer);
@@ -48,7 +48,7 @@ void connectWithPref()
     IPAddress dns(8,8,8,8);
     WiFi.mode(WIFI_STA);
     WiFi.begin(last_ssid);
-    delay(2000);
+    delay(1000);
     if(WiFi.status() == WL_CONNECTED)
     {
       configTime(0, 0, ntpServer);

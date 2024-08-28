@@ -278,6 +278,6 @@ void _showNotification(RemoteNotification? notification) {
                       
     Timer(Duration(minutes: 2), () {
         is_awake = false; // Change back to grey after 2 minutes
-    });
+      });
   }
 }
