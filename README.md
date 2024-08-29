@@ -24,7 +24,7 @@ The night light project is designed to enhance both sleep quality and nighttime 
 
 2.**Motion Detection:** Utilizes a motion sensor that turns the lights up when a person is detected getting up, ensuring safe navigation during the night.
 
-3.**Data Logging:** Saves activity data to Firebase, accessible via a Flutter app
+3.**Data Logging:** Saves activity data to Firebase, accessible via a Flutter app.
 
 4. **Real-Time Notifications**: Sends instant notifications through FCM for relevant events, ensuring timely alerts.
 
